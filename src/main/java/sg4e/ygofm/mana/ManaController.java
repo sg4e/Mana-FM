@@ -15,13 +15,17 @@
  */
 package sg4e.ygofm.mana;
 
+import afester.javafx.svg.SvgLoader;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javafx.event.Event;
 import javafx.fxml.FXML;
+import javafx.scene.Group;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -53,17 +57,57 @@ public class ManaController {
     public void initComponents() {
         var settings = TextFields.bindAutoCompletion(deckCardEntry, cardNameMap.keySet());
         settings.setPrefWidth(deckCardEntry.getPrefWidth());
-        deckList.setCellFactory(param -> new CardCell());
+        var svgLoad = new SvgLoader();
+        Group dupGraphic = getGraphicFromSvg(svgLoad, "/glyphs/clone-regular.svg");
+        Group deleteGraphic = getGraphicFromSvg(svgLoad, "/glyphs/trash-alt-regular.svg");
+        deckList.setCellFactory(param -> {
+            var cell = new CardCell();
+            var contextMenu = new ContextMenu();
+            var duplicateMenuItem = new MenuItem();
+            duplicateMenuItem.setText("Duplicate");
+            duplicateMenuItem.setGraphic(dupGraphic);
+            duplicateMenuItem.setOnAction(event -> addCardToDeck(cell.getItem()));
+            
+            var deleteMenuItem = new MenuItem();
+            deleteMenuItem.setText("Remove");
+            deleteMenuItem.setGraphic(deleteGraphic);
+            deleteMenuItem.setOnAction(event -> {
+                //need to be careful for the case where multiple copies are in the deck
+                deckList.getItems().remove(cell.getIndex());
+                cardCount--;
+                updateCountLabel();
+            });
+            
+            contextMenu.getItems().addAll(duplicateMenuItem, deleteMenuItem);
+            
+            cell.emptyProperty().addListener((obs, wasEmpty, isNowEmpty) -> {
+                if (isNowEmpty) {
+                    cell.setContextMenu(null);
+                } else {
+                    cell.setContextMenu(contextMenu);
+                }
+            });
+            
+            return cell;
+        });
+    }
+    
+    private static Group getGraphicFromSvg(SvgLoader svgLoad, String glyphResource) {
+        Group dupIcon = svgLoad.loadSvg(ManaController.class.getResourceAsStream("/glyphs/clone-regular.svg"));
+        dupIcon.setScaleX(0.035);
+        dupIcon.setScaleY(0.035);
+        //need to encapsulate or sizing doesn't work
+        return new Group(dupIcon);
     }
     
     @FXML
     public void processDeckInput(KeyEvent keyEvent) {
         if(keyEvent.getCode() == KeyCode.ENTER)
-            addCardToDeck(null);
+            processAddButtonAction(null);
     }
     
     @FXML
-    public void addCardToDeck(Event e) {
+    public void processAddButtonAction(Event e) {
         String input = deckCardEntry.getText().trim();
         Card card;
         try {
@@ -75,27 +119,31 @@ public class ManaController {
             card = cardNameMap.get(input);
         }
         if(card != null) {
-            //validation
-            var items = deckList.getItems();
-            if(items.size() >= 40) {
-                setDeckErrorMessage("Deck is full");
-                return;
-            }
-            if(items.stream().filter(card::equals).count() >= 3) {
-                setDeckErrorMessage("Deck already has 3 copies of " + card.getName());
-                return;
-            }
-            deckList.getItems().add(card);
-            deckList.scrollTo(items.size() - 1);
-            deckCardLabel.setText(CardCell.format(card));
-            deckCardLabel.setStyle(null);
-            deckCardEntry.setText("");
-            cardCount++;
-            updateCountLabel();
+            addCardToDeck(card);
         }
         else {
             setDeckErrorMessage("Invalid card");
         }
+    }
+    
+    private void addCardToDeck(Card card) {
+        //validation
+        var items = deckList.getItems();
+        if(items.size() >= 40) {
+            setDeckErrorMessage("Deck is full");
+            return;
+        }
+        if(items.stream().filter(card::equals).count() >= 3) {
+            setDeckErrorMessage("Deck already has 3 copies of " + card.getName());
+            return;
+        }
+        deckList.getItems().add(card);
+        deckList.scrollTo(items.size() - 1);
+        deckCardLabel.setText(CardCell.format(card));
+        deckCardLabel.setStyle(null);
+        deckCardEntry.setText("");
+        cardCount++;
+        updateCountLabel();
     }
     
     private void setDeckErrorMessage(String message) {

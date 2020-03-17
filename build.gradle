@@ -17,6 +17,7 @@ repositories {
 dependencies {
     implementation project(":YGOFM-gamedata")
     implementation 'org.controlsfx:controlsfx:11.0.1'
+    compile group: 'com.github.afester.javafx', name: 'FranzXaver', version: '0.1'
     
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.5.2'

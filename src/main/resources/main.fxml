@@ -75,7 +75,7 @@
                               </Label>
                               <TextField fx:id="deckCardEntry" alignment="CENTER" layoutX="14.0" layoutY="22.0" onKeyPressed="#processDeckInput" prefHeight="26.0" prefWidth="551.0" promptText="Card ID or Name" />
                               <Label fx:id="deckCardLabel" alignment="CENTER" layoutY="48.0" prefHeight="16.0" prefWidth="640.0" text="Unknown Card" />
-                              <Button layoutX="582.0" layoutY="22.0" mnemonicParsing="false" onAction="#addCardToDeck" text="Add" />
+                              <Button layoutX="582.0" layoutY="22.0" mnemonicParsing="false" onAction="#processAddButtonAction" text="Add" />
                               <ScrollPane layoutX="14.0" layoutY="64.0">
                                  <content>
                                     <ListView fx:id="deckList" prefHeight="264.0" prefWidth="611.0" />
