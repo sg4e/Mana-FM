@@ -38,7 +38,7 @@ public class ManaController {
     public TextField deckCardEntry;
     public Label deckCardLabel;
     public Label cardCountLabel;
-    public ListView<String> deckList;
+    public ListView<Card> deckList;
     
     private final FMDB fmdb;
     private final TreeMap<String,Card> cardNameMap;
@@ -53,6 +53,7 @@ public class ManaController {
     public void initComponents() {
         var settings = TextFields.bindAutoCompletion(deckCardEntry, cardNameMap.keySet());
         settings.setPrefWidth(deckCardEntry.getPrefWidth());
+        deckList.setCellFactory(param -> new CardCell());
     }
     
     @FXML
@@ -76,19 +77,17 @@ public class ManaController {
         if(card != null) {
             //validation
             var items = deckList.getItems();
-            var cardName = card.getName();
             if(items.size() >= 40) {
                 setDeckErrorMessage("Deck is full");
                 return;
             }
-            if(items.stream().filter(item -> item.endsWith(cardName)).count() >= 3) {
+            if(items.stream().filter(card::equals).count() >= 3) {
                 setDeckErrorMessage("Deck already has 3 copies of " + card.getName());
                 return;
             }
-            var text = "#" + card.getId() + " " + card.getName();
-            deckList.getItems().add(text);
+            deckList.getItems().add(card);
             deckList.scrollTo(items.size() - 1);
-            deckCardLabel.setText(text);
+            deckCardLabel.setText(CardCell.format(card));
             deckCardLabel.setStyle(null);
             deckCardEntry.setText("");
             cardCount++;
