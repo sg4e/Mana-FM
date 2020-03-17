@@ -15,7 +15,7 @@
  */
 package sg4e.ygofm.mana;
 
-import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javafx.event.Event;
@@ -41,12 +41,13 @@ public class ManaController {
     public ListView<String> deckList;
     
     private final FMDB fmdb;
-    private final Map<String,Card> cardNameMap;
+    private final TreeMap<String,Card> cardNameMap;
     private int cardCount;
     
     public ManaController(FMDB fmdb) {
         this.fmdb = fmdb;
-        cardNameMap = fmdb.getAllCards().stream().collect(Collectors.toMap(Card::getName, Function.identity()));
+        cardNameMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        cardNameMap.putAll(fmdb.getAllCards().stream().collect(Collectors.toMap(Card::getName, Function.identity())));
     }
     
     public void initComponents() {
@@ -63,14 +64,14 @@ public class ManaController {
     @FXML
     public void addCardToDeck(Event e) {
         String input = deckCardEntry.getText().trim();
-        Card card = null;
+        Card card;
         try {
             int id = Integer.parseInt(input);
             card = fmdb.getCard(id);
         }
         catch(NumberFormatException ex) {
             //not at parsable number, so maybe it's the card name
-            card = cardNameMap.keySet().stream().filter(input::equalsIgnoreCase).findAny().map(cardNameMap::get).orElse(null);
+            card = cardNameMap.get(input);
         }
         if(card != null) {
             //validation
