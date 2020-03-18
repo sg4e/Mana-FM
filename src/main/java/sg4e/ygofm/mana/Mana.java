@@ -44,4 +44,8 @@ public class Mana extends Application {
         primaryStage.setScene(mainScene);
         primaryStage.show();
     }
+    
+    public static void main(String[] args) {
+        launch();
+    }
 }

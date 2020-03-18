@@ -28,7 +28,7 @@ tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint:deprecation"
 }
 
-String mainClass = 'sg4e.ygofm.mana.Mana'
+String mainClass = 'sg4e.ygofm.mana.Launcher'
 
 application {
     mainClassName = mainClass
