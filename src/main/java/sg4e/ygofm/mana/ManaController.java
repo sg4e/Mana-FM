@@ -93,7 +93,7 @@ public class ManaController {
     }
     
     private static Group getGraphicFromSvg(SvgLoader svgLoad, String glyphResource) {
-        Group dupIcon = svgLoad.loadSvg(ManaController.class.getResourceAsStream("/glyphs/clone-regular.svg"));
+        Group dupIcon = svgLoad.loadSvg(ManaController.class.getResourceAsStream(glyphResource));
         dupIcon.setScaleX(0.035);
         dupIcon.setScaleY(0.035);
         //need to encapsulate or sizing doesn't work
