@@ -1,8 +1,6 @@
 plugins {
-    id 'java'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.8'
-    id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
 javafx {
@@ -12,12 +10,18 @@ javafx {
 
 repositories {
     jcenter()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
-    implementation project(":YGOFM-gamedata")
+    implementation 'com.github.sg4e:YGOFM-gamedata:master-SNAPSHOT'
     implementation 'org.controlsfx:controlsfx:11.0.1'
     implementation group: 'com.github.afester.javafx', name: 'FranzXaver', version: '0.1'
+    
+    //cross-platform runtimes
+    runtimeOnly "org.openjfx:javafx-graphics:$javafx.version:win"
+    runtimeOnly "org.openjfx:javafx-graphics:$javafx.version:linux"
+    runtimeOnly "org.openjfx:javafx-graphics:$javafx.version:mac"
     
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.5.2'
@@ -28,16 +32,19 @@ tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint:deprecation"
 }
 
-String mainClass = 'sg4e.ygofm.mana.Launcher'
+mainClassName = 'sg4e.ygofm.mana.Mana'
 
 application {
-    mainClassName = mainClass
+    applicationDefaultJvmArgs = ['--add-exports', 'javafx.base/com.sun.javafx.event=ALL-UNNAMED']
 }
 
-shadowJar {
-  manifest {
-    attributes 'Main-Class': mainClass
-  }
+jar {
+    manifest {
+        attributes 'Main-Class': 'sg4e.ygofm.mana.Launcher'
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
 
 test {
