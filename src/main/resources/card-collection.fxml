@@ -22,20 +22,23 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 
 <VBox prefHeight="200.0" prefWidth="100.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sg4e.ygofm.mana.CardCollectionController">
    <children>
       <HBox>
          <children>
             <TextField fx:id="deckCardEntry" alignment="CENTER" onKeyPressed="#processDeckInput" prefHeight="26.0" prefWidth="543.0" promptText="Card ID or Name" HBox.hgrow="ALWAYS" />
-            <Button mnemonicParsing="false" onAction="#processAddButtonAction" text="Add" />
+            <Button minWidth="50.0" mnemonicParsing="false" onAction="#processAddButtonAction" text="Add" />
          </children>
       </HBox>
       <Label fx:id="deckCardLabel" alignment="CENTER" prefHeight="16.0" prefWidth="640.0" text="Unknown Card" />
       <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
          <content>
-            <ListView fx:id="deckList" prefHeight="270.0" prefWidth="590.0" />
+            <VBox>
+               <children>
+                  <ListView fx:id="deckList" prefHeight="270.0" prefWidth="590.0" VBox.vgrow="ALWAYS" />
+               </children>
+            </VBox>
          </content>
       </ScrollPane>
    </children>
