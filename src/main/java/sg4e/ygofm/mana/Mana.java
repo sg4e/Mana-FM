@@ -20,7 +20,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import sg4e.ygofm.gamedata.FMDB;
 
 /**
  *
@@ -29,17 +28,12 @@ import sg4e.ygofm.gamedata.FMDB;
 public class Mana extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FMDB fmdb = new FMDB.Builder().excludeDescrptions().build();
-        
         primaryStage.setTitle("Mana");
         
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/main.fxml"));
-        var controller = new ManaController(fmdb);
-        loader.setController(controller);
         VBox vbox = loader.<VBox>load();
         Scene mainScene = new Scene(vbox);
-        controller.initComponents();
 
         primaryStage.setScene(mainScene);
         primaryStage.show();

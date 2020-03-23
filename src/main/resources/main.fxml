@@ -30,7 +30,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sg4e.ygofm.mana.ManaController">
   <children>
     <MenuBar VBox.vgrow="NEVER">
       <menus>
@@ -78,22 +78,7 @@
                   <Insets bottom="2.0" left="5.0" right="5.0" top="2.0" />
                </padding>
             </HBox>
-            <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
-               <children>
-                  <HBox>
-                     <children>
-                        <TextField fx:id="deckCardEntry" alignment="CENTER" onKeyPressed="#processDeckInput" prefHeight="26.0" prefWidth="543.0" promptText="Card ID or Name" HBox.hgrow="ALWAYS" />
-                        <Button mnemonicParsing="false" onAction="#processAddButtonAction" text="Add" />
-                     </children>
-                  </HBox>
-                  <Label fx:id="deckCardLabel" alignment="CENTER" prefHeight="16.0" prefWidth="640.0" text="Unknown Card" />
-                  <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
-                     <content>
-                        <ListView fx:id="deckList" prefHeight="270.0" prefWidth="590.0" />
-                     </content>
-                  </ScrollPane>
-               </children>
-            </VBox>
+            <fx:include fx:id="deckCardCollection" source="card-collection.fxml" />
          </children>
       </VBox>
   </children>
