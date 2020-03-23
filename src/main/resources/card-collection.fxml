@@ -31,7 +31,11 @@
             <Button minWidth="50.0" mnemonicParsing="false" onAction="#processAddButtonAction" text="Add" />
          </children>
       </HBox>
-      <Label fx:id="deckCardLabel" alignment="CENTER" prefHeight="16.0" prefWidth="640.0" text="Unknown Card" />
+      <HBox>
+         <children>
+            <Label fx:id="deckCardLabel" alignment="CENTER" maxWidth="1.7976931348623157E308" prefHeight="16.0" prefWidth="640.0" text="Unknown Card" textAlignment="CENTER" HBox.hgrow="ALWAYS" />
+         </children>
+      </HBox>
       <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
          <content>
             <VBox>
