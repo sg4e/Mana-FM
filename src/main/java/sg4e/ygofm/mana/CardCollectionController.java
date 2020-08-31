@@ -17,15 +17,24 @@ package sg4e.ygofm.mana;
 
 import afester.javafx.svg.SvgLoader;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
+import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -33,6 +42,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import org.controlsfx.control.textfield.AutoCompletionBinding;
 import org.controlsfx.control.textfield.TextFields;
 import sg4e.ygofm.gamedata.Card;
 import sg4e.ygofm.gamedata.FMDB;
@@ -49,22 +59,37 @@ public class CardCollectionController implements Initializable {
     public Label deckCardLabel;
     @FXML
     public ListView<Card> deckList;
+    @FXML
+    public Button addButton;
     
     private FMDB fmdb;
     private TreeMap<String,Card> cardNameMap;
     private int cardCount;
-    private Consumer<Integer> onCardCollectionChange;
+    private List<Consumer<Integer>> onCardCollectionChangeListeners;
+    private Set<Card> acceptableCards;
+    private Map<Card,Long> cardCopies;
+    private AutoCompletionBinding autocompletion;
     
     public void initFmdb(FMDB fmdb) {
         this.fmdb = fmdb;
         cardNameMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         cardNameMap.putAll(fmdb.getAllCards().stream().collect(Collectors.toMap(Card::getName, Function.identity())));
-        var settings = TextFields.bindAutoCompletion(deckCardEntry, cardNameMap.keySet());
-        settings.setPrefWidth(deckCardEntry.getPrefWidth());
+        acceptableCards = fmdb.getAllCards();
+        cardCopies = new HashMap<>();
+        updateAutocompletion(null);
+    }
+    
+    private void updateAutocompletion(Collection<Card> suggestions) {
+        if(autocompletion != null)
+            autocompletion.dispose();
+        autocompletion = TextFields.bindAutoCompletion(deckCardEntry, suggestions == null ? cardNameMap.keySet() : 
+                suggestions.stream().map(Card::getName).distinct().collect(Collectors.toList()));
+        autocompletion.setPrefWidth(deckCardEntry.getPrefWidth());
     }
     
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        onCardCollectionChangeListeners = new ArrayList<>();
         var svgLoad = new SvgLoader();
         Group dupGraphic = getGraphicFromSvg(svgLoad, "/glyphs/clone-regular.svg");
         Group deleteGraphic = getGraphicFromSvg(svgLoad, "/glyphs/trash-alt-regular.svg");
@@ -83,7 +108,7 @@ public class CardCollectionController implements Initializable {
                 //need to be careful for the case where multiple copies are in the deck
                 deckList.getItems().remove(cell.getIndex());
                 cardCount--;
-                updateCountLabel();
+                alertChangeListeners();
             });
             
             contextMenu.getItems().addAll(duplicateMenuItem, deleteMenuItem);
@@ -134,9 +159,20 @@ public class CardCollectionController implements Initializable {
         }
     }
     
-    private void addCardToDeck(Card card) {
-        //validation
+    public void addCardToDeck(Card card) {
+        //validation: this is sufficient for private calls but external calls may need additional validation
         var items = deckList.getItems();
+        if(!acceptableCards.contains(card)) {
+            setDeckErrorMessage("Card not in deck");
+            return;
+        }
+        if(cardCopies.containsKey(card)) {
+            long currentCopies = deckList.getItems().stream().filter(card::equals).count();
+            if(currentCopies >= cardCopies.get(card)) {
+                setDeckErrorMessage("No additional copies");
+                return;
+            }
+        }
         if(items.size() >= 40) {
             setDeckErrorMessage("Deck is full");
             return;
@@ -151,7 +187,7 @@ public class CardCollectionController implements Initializable {
         deckCardLabel.setStyle(null);
         deckCardEntry.setText("");
         cardCount++;
-        updateCountLabel();
+        alertChangeListeners();
     }
     
     private void setDeckErrorMessage(String message) {
@@ -159,12 +195,47 @@ public class CardCollectionController implements Initializable {
         deckCardLabel.setStyle("-fx-font-style: italic; -fx-text-fill: red;");
     }
     
-    private void updateCountLabel() {
-        onCardCollectionChange.accept(cardCount);
+    private void alertChangeListeners() {
+        onCardCollectionChangeListeners.forEach(l -> l.accept(cardCount));
     }
     
-    public void setOnChangeAction(Consumer<Integer> cardCountConsumer) {
-        onCardCollectionChange = cardCountConsumer;
+    public void addOnChangeAction(Consumer<Integer> cardCountConsumer) {
+        onCardCollectionChangeListeners.add(cardCountConsumer);
+    }
+    
+    public void setDisable(boolean disable) {
+        addButton.setDisable(disable);
+        deckList.setDisable(disable);
+        deckCardEntry.setDisable(disable);
+    }
+    
+    public void setCardSuggestionPool(Collection<Card> cards) {
+        updateAutocompletion(cards);
+        if(cards == null) {
+            acceptableCards = fmdb.getAllCards();
+            cardCopies = new HashMap<>();
+        }
+        else {
+            acceptableCards = new HashSet<>(cards);
+            cardCopies = cards.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        }
+    }
+    
+    public void clear() {
+        setCardSuggestionPool(null);
+        deckList.getItems().clear();
+        deckCardEntry.setText("");
+        deckCardLabel.setText("");
+        cardCount = 0;
+        alertChangeListeners();
+    }
+    
+    public List<Card> getDeck() {
+        return new ArrayList<>(deckList.getItems());
+    }
+    
+    public Stream<Card> stream() {
+        return deckList.getItems().stream();
     }
     
 }

@@ -26,28 +26,18 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sg4e.ygofm.mana.ManaController">
+<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sg4e.ygofm.mana.DeckWindowController">
   <children>
     <MenuBar VBox.vgrow="NEVER">
       <menus>
-        <Menu mnemonicParsing="false" text="File">
-          <items>
-            <MenuItem mnemonicParsing="false" text="New" />
-            <MenuItem mnemonicParsing="false" text="Open…" />
-            <Menu mnemonicParsing="false" text="Open Recent" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Save" />
-            <MenuItem mnemonicParsing="false" text="Save As…" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" text="Preferences…" />
-            <SeparatorMenuItem mnemonicParsing="false" />
-            <MenuItem mnemonicParsing="false" onAction="#exit" text="Quit" />
-          </items>
-        </Menu>
-        <Menu mnemonicParsing="false" text="Help">
-          <items>
-            <MenuItem mnemonicParsing="false" text="About Mana..." />
-          </items>
+        <Menu mnemonicParsing="false" text="Deck">
+               <items>
+                  <MenuItem fx:id="importMenuItem" mnemonicParsing="false" onAction="#importDeckAsDSV" text="Import as DSV" />
+                  <MenuItem fx:id="exportMenuItem" mnemonicParsing="false" onAction="#exportDeckAsDSV" text="Export as DSV" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem fx:id="clearDeckMenuItem" mnemonicParsing="false" onAction="#clearDeck" text="Clear Deck" />
+                  <MenuItem mnemonicParsing="false" onAction="#close" text="Close" />
+               </items>
         </Menu>
       </menus>
     </MenuBar>

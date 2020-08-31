@@ -18,6 +18,12 @@ dependencies {
     implementation 'org.controlsfx:controlsfx:11.0.1'
     implementation group: 'com.github.afester.javafx', name: 'FranzXaver', version: '0.1'
     
+    //logging
+    implementation group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.26'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.1'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.11.1'
+    annotationProcessor(group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.1')
+    
     //cross-platform runtimes
     runtimeOnly "org.openjfx:javafx-graphics:$javafx.version:win"
     runtimeOnly "org.openjfx:javafx-graphics:$javafx.version:linux"
@@ -32,7 +38,7 @@ tasks.withType(JavaCompile) {
     options.compilerArgs << "-Xlint:deprecation"
 }
 
-mainClassName = 'sg4e.ygofm.mana.Mana'
+mainClassName = 'sg4e.ygofm.mana.Launcher'
 
 application {
     applicationDefaultJvmArgs = ['--add-exports', 'javafx.base/com.sun.javafx.event=ALL-UNNAMED']

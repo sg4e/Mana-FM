@@ -28,7 +28,7 @@
       <HBox>
          <children>
             <TextField fx:id="deckCardEntry" alignment="CENTER" onKeyPressed="#processDeckInput" prefHeight="26.0" prefWidth="543.0" promptText="Card ID or Name" HBox.hgrow="ALWAYS" />
-            <Button minWidth="50.0" mnemonicParsing="false" onAction="#processAddButtonAction" text="Add" />
+            <Button fx:id="addButton" minWidth="50.0" mnemonicParsing="false" onAction="#processAddButtonAction" text="Add" />
          </children>
       </HBox>
       <HBox>

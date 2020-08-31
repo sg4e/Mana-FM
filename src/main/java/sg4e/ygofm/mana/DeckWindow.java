@@ -15,8 +15,7 @@
  */
 package sg4e.ygofm.mana;
 
-import javafx.application.Application;
-import javafx.application.Platform;
+import java.io.IOException;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
@@ -26,23 +25,30 @@ import javafx.stage.Stage;
  *
  * @author sg4e
  */
-public class Mana extends Application {
-    @Override
-    public void start(Stage primaryStage) throws Exception {
-        primaryStage.setTitle("Mana");
+public class DeckWindow {
+    private final Stage stage;
+    private final DeckWindowController controller;
+    
+    public DeckWindow() throws IOException {
+        stage = new Stage();
+        stage.setTitle("Deck");
         
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/main-window.fxml"));
+        loader.setLocation(getClass().getResource("/main.fxml"));
         VBox vbox = loader.<VBox>load();
+        controller = loader.getController();
+        controller.setStage(stage);
         Scene mainScene = new Scene(vbox);
 
-        primaryStage.setScene(mainScene);
-        //close all windows and exit when the primary window is closed
-        primaryStage.setOnHidden((eh) -> Platform.exit());
-        primaryStage.show();
+        stage.setScene(mainScene);
     }
     
-    public static void main(String[] args) {
-        launch();
+    public void show() {
+        if(!stage.isShowing())
+            stage.show();
+    }
+    
+    public DeckWindowController getController() {
+        return controller;
     }
 }
