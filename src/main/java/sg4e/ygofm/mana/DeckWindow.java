@@ -34,7 +34,7 @@ public class DeckWindow {
         stage.setTitle("Deck");
         
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/main.fxml"));
+        loader.setLocation(getClass().getResource("/deck.fxml"));
         VBox vbox = loader.<VBox>load();
         controller = loader.getController();
         controller.setStage(stage);
