@@ -50,7 +50,8 @@ application {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'sg4e.ygofm.mana.Launcher'
+        attributes 'Main-Class': 'sg4e.ygofm.mana.Launcher',
+                   "Multi-Release": true
     }
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
