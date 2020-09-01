@@ -16,15 +16,31 @@
 package sg4e.ygofm.mana;
 
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 import javafx.application.Platform;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sg4e.ygofm.gamedata.Card;
+import sg4e.ygofm.gamedata.Deck;
+import sg4e.ygofm.gamedata.Duelist;
 import sg4e.ygofm.gamedata.FMDB;
+import sg4e.ygofm.gamedata.RNG;
 
 /**
  *
@@ -42,13 +58,34 @@ public class ManaController implements Initializable {
     public Button startDuelButton;
     @FXML
     public Button resetDuelButton;
+    @FXML
+    public Button searchSeedsButton;
+    @FXML
+    public ComboBox<Duelist> duelistComboBox;
+    @FXML
+    public ComboBox<Comparator<Card>> deckSortComboBox;
+    @FXML
+    public ListView<RNG> seedList;
+    @FXML
+    public Label statusLabel;
+    @FXML
+    public ListView<Card> aiDeckList;
     
     private DeckWindow deckWindow;
+    private FMDB fmdb;
     private static final Logger LOG = LogManager.getLogger();
+    private boolean isSearching = false;
+    private final Executor executor = Executors.newFixedThreadPool(1, (Runnable r) -> {
+        Thread t = Executors.defaultThreadFactory().newThread(r);
+        t.setDaemon(true);
+        return t;
+    });
+
+    private Task<Set<RNG>> currentTask;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        FMDB fmdb = new FMDB.Builder().excludeDescrptions().build();
+        fmdb = new FMDB.Builder().excludeDescrptions().build();
         handCardCollectionController.initFmdb(fmdb);
         handCardCollectionController.addOnChangeAction((value) -> {
             remainingDrawsCount.setText(Integer.toString(NUMBER_CARDS_IN_DECK - value));
@@ -56,6 +93,7 @@ public class ManaController implements Initializable {
         handCardCollectionController.setDisable(true);
         startDuelButton.setDisable(true);
         resetDuelButton.setDisable(true);
+        searchSeedsButton.setDisable(true);
         handCardCollectionController.setDisable(true);
         try {
             deckWindow = new DeckWindow();
@@ -66,8 +104,40 @@ public class ManaController implements Initializable {
             Platform.exit();
         }
         deckWindow.getController().getCardCollectionController().addOnChangeAction((deckSize) -> {
-                startDuelButton.setDisable(deckSize != NUMBER_CARDS_IN_DECK);
+            checkAndEnableStartDuelButton();
         });
+        //initialize duelists
+        List<Duelist> duelists = Arrays.stream(Duelist.Name.values()).map(fmdb::getDuelist).collect(Collectors.toList());
+        duelistComboBox.getItems().addAll(duelists);
+        duelistComboBox.getSelectionModel().select(fmdb.getDuelist(Duelist.Name.HEISHIN_2));
+        //initialize decksorts
+        deckSortComboBox.getItems().addAll(Deck.getAllSorts());
+        deckSortComboBox.getSelectionModel().select(Deck.CARD_ID_ORDER);
+        
+        seedList.setCellFactory(new GenericCellFactory<>((rng) -> "0x" + Integer.toHexString(rng.getSeed())));
+        seedList.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends RNG> ov, RNG oldSelection, RNG newSelection) -> {
+            aiDeckList.getItems().clear();
+            if(newSelection != null) {
+                RNG copyRNG = new RNG(newSelection);
+                //simulate the whole process
+                new Deck(deckWindow.getController().getCardCollectionController().getDeck()).shuffle(copyRNG);
+                Deck aiDeck = Deck.createDuelistDeck(duelistComboBox.getSelectionModel().getSelectedItem(), copyRNG);
+                aiDeck.shuffle(copyRNG);
+                aiDeckList.setItems(FXCollections.observableList(aiDeck.toList()));
+            }
+        });
+        
+        aiDeckList.setCellFactory((param) -> new CardCell());
+    }
+    
+    @FXML
+    public void checkAndEnableStartDuelButton() {
+        int deckSize = deckWindow.getController().getCardCollectionController().getCardCount();
+        if(deckSize == NUMBER_CARDS_IN_DECK && duelistComboBox.getSelectionModel().getSelectedItem() != null
+                && deckSortComboBox.getSelectionModel().getSelectedItem() != null)
+            startDuelButton.setDisable(false);
+        else
+            startDuelButton.setDisable(true);
     }
     
     @FXML
@@ -84,8 +154,11 @@ public class ManaController implements Initializable {
     public void startDuel() {
         startDuelButton.setDisable(true);
         deckWindow.getController().setDisable(true);
+        duelistComboBox.setDisable(true);
+        deckSortComboBox.setDisable(true);
         
         resetDuelButton.setDisable(false);
+        searchSeedsButton.setDisable(false);
         handCardCollectionController.setDisable(false);
         
         handCardCollectionController.setCardSuggestionPool(deckWindow.getController().getCardCollectionController().getDeck());
@@ -95,12 +168,58 @@ public class ManaController implements Initializable {
     public void resetDuel() {
         startDuelButton.setDisable(false);
         deckWindow.getController().setDisable(false);
+        duelistComboBox.setDisable(false);
+        deckSortComboBox.setDisable(false);
         
         resetDuelButton.setDisable(true);
+        searchSeedsButton.setDisable(true);
         handCardCollectionController.setDisable(true);
         
         handCardCollectionController.setCardSuggestionPool(null);
         handCardCollectionController.clear();
+        seedList.getItems().clear();
+        aiDeckList.getItems().clear();
+    }
+    
+    @FXML
+    public void searchSeeds() {
+        if(isSearching) {
+            //cancel
+            resetUiAfterSearch();
+        }
+        else {
+            //start searching
+            isSearching = true;
+            searchSeedsButton.setText("Stop Searching");
+            statusLabel.setText("Simulating...");
+            resetDuelButton.setDisable(true);
+            
+            seedList.getItems().clear();
+            
+            Deck playerDeck = new Deck(deckWindow.getController().getCardCollectionController().getDeck());
+            Comparator<Card> sort = deckSortComboBox.getSelectionModel().getSelectedItem();
+            List<Card> drawnCards = handCardCollectionController.getDeck();
+            
+            currentTask = new Task<>() {
+                @Override
+                protected Set<RNG> call() throws Exception {
+                    return playerDeck.findPossibleSeeds(sort, drawnCards);
+                }
+            };
+            currentTask.setOnSucceeded(event -> {
+                Set<RNG> seedSet = currentTask.getValue();
+                seedList.getItems().addAll(seedSet);
+                resetUiAfterSearch();
+            });
+            executor.execute(currentTask);
+        }
+    }
+    
+    private void resetUiAfterSearch() {
+        isSearching = false;
+        searchSeedsButton.setText("Search Seeds");
+        statusLabel.setText("Ready");
+        resetDuelButton.setDisable(false);
     }
     
 }

@@ -44,8 +44,8 @@ public class DeckWindow {
     }
     
     public void show() {
-        if(!stage.isShowing())
-            stage.show();
+        stage.show();
+        stage.toFront();
     }
     
     public DeckWindowController getController() {

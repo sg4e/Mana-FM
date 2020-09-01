@@ -203,6 +203,10 @@ public class CardCollectionController implements Initializable {
         onCardCollectionChangeListeners.add(cardCountConsumer);
     }
     
+    public int getCardCount() {
+        return cardCount;
+    }
+    
     public void setDisable(boolean disable) {
         addButton.setDisable(disable);
         deckList.setDisable(disable);

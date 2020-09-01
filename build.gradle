@@ -18,6 +18,10 @@ dependencies {
     implementation 'org.controlsfx:controlsfx:11.0.1'
     implementation group: 'com.github.afester.javafx', name: 'FranzXaver', version: '0.1'
     
+    //lombok
+    compileOnly 'org.projectlombok:lombok:1.18.8'
+    annotationProcessor 'org.projectlombok:lombok:1.18.8'
+    
     //logging
     implementation group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.26'
     implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.1'

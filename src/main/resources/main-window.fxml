@@ -17,14 +17,15 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
@@ -37,6 +38,7 @@
       <menus>
         <Menu mnemonicParsing="false" text="File">
           <items>
+                  <MenuItem mnemonicParsing="false" onAction="#showDeckWindow" text="Edit Deck" />
             <MenuItem mnemonicParsing="false" onAction="#exit" text="Quit" />
           </items>
         </Menu>
@@ -66,36 +68,47 @@
                   <fx:include fx:id="handCardCollection" source="card-collection.fxml" VBox.vgrow="ALWAYS" />
                </children>
             </VBox>
-        <ScrollPane prefHeight="-1.0" prefWidth="-1.0">
-          <content>
-            <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0" prefHeight="545.0" prefWidth="430.0">
-              <children>
-                <Label alignment="CENTER" layoutX="14.0" layoutY="14.0" style="&#10;" text="View" textAlignment="CENTER" wrapText="false">
-                           <font>
-                      <Font size="18.0" fx:id="x1" />
-                           </font>
-                           <textFill>
-                      <Color blue="0.624" green="0.624" red="0.624" fx:id="x2" />
-                           </textFill></Label>
-              </children>
-            </AnchorPane>
-          </content>
-        </ScrollPane>
-        <AnchorPane>
-          <children>
-            <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" style="&#10;" text="Details" textAlignment="CENTER" textFill="$x2" wrapText="false" />
-          </children>
-        </AnchorPane>
+            <VBox>
+               <children>
+                  <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Seeds" textAlignment="CENTER" />
+                  <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS">
+                     <content>
+                        <VBox prefHeight="400.0" prefWidth="170.0">
+                           <children>
+                              <ListView fx:id="seedList" VBox.vgrow="ALWAYS" />
+                           </children>
+                        </VBox>
+                     </content>
+                  </ScrollPane>
+               </children>
+            </VBox>
+            <VBox>
+               <children>
+                  <ComboBox fx:id="duelistComboBox" maxWidth="1.7976931348623157E308" onAction="#checkAndEnableStartDuelButton" />
+                  <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS">
+                     <content>
+                        <VBox>
+                           <children>
+                              <ListView fx:id="aiDeckList" VBox.vgrow="ALWAYS" />
+                           </children>
+                        </VBox>
+                     </content>
+                  </ScrollPane>
+               </children>
+            </VBox>
       </items>
     </SplitPane>
     <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0" VBox.vgrow="NEVER">
       <children>
             <Button mnemonicParsing="false" onAction="#showDeckWindow" text="Edit Deck" />
             <Separator orientation="VERTICAL" />
+            <ComboBox fx:id="deckSortComboBox" onAction="#checkAndEnableStartDuelButton" />
             <Button fx:id="startDuelButton" mnemonicParsing="false" onAction="#startDuel" text="Begin Duel" />
             <Button fx:id="resetDuelButton" mnemonicParsing="false" onAction="#resetDuel" text="Reset Duel" />
+            <Separator layoutX="98.0" layoutY="13.0" orientation="VERTICAL" />
+            <Button fx:id="searchSeedsButton" mnemonicParsing="false" onAction="#searchSeeds" text="Search Seeds" />
         <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
-        <Label maxWidth="-1.0" text="Right status" HBox.hgrow="NEVER">
+        <Label fx:id="statusLabel" maxWidth="-1.0" text="Ready" HBox.hgrow="NEVER">
                <font>
             <Font size="11.0" fx:id="x3" />
                </font>
