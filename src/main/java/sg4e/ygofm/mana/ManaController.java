@@ -29,11 +29,16 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sg4e.ygofm.gamedata.Card;
@@ -80,6 +85,7 @@ public class ManaController implements Initializable {
         t.setDaemon(true);
         return t;
     });
+    private Stage parent;
 
     private Task<Set<RNG>> currentTask;
 
@@ -143,6 +149,27 @@ public class ManaController implements Initializable {
     @FXML
     public void showDeckWindow() {
         deckWindow.show();
+    }
+    
+    @FXML
+    public void showAboutDialog() {
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("/about.fxml"));
+            VBox dialog = loader.<VBox>load();
+            Stage stage = new Stage();
+            stage.setTitle("About Mana");
+            //moving this into initialize will cause parent below to be null
+            //initializing the parent doesn't seem to matter though
+            stage.initOwner(parent);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            Scene scene = new Scene(dialog);
+            stage.setScene(scene);
+            stage.showAndWait();
+        }
+        catch(Exception ex) {
+            LOG.error("Failure to open the About dialog", ex);
+        }
     }
     
     @FXML
@@ -220,6 +247,10 @@ public class ManaController implements Initializable {
         searchSeedsButton.setText("Search Seeds");
         statusLabel.setText("Ready");
         resetDuelButton.setDisable(false);
+    }
+    
+    public void setParent(Stage parent) {
+        this.parent = parent;
     }
     
 }

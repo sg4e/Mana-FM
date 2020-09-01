@@ -34,6 +34,8 @@ public class Mana extends Application {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/main-window.fxml"));
         VBox vbox = loader.<VBox>load();
+        ManaController controller = (ManaController) loader.getController();
+        controller.setParent(primaryStage);
         Scene mainScene = new Scene(vbox);
 
         primaryStage.setScene(mainScene);
