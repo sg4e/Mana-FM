@@ -23,6 +23,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
@@ -36,6 +37,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -46,6 +48,7 @@ import sg4e.ygofm.gamedata.Deck;
 import sg4e.ygofm.gamedata.Duelist;
 import sg4e.ygofm.gamedata.FMDB;
 import sg4e.ygofm.gamedata.RNG;
+import sg4e.ygofm.gamedata.SeedSearch;
 
 /**
  *
@@ -75,6 +78,8 @@ public class ManaController implements Initializable {
     public Label statusLabel;
     @FXML
     public ListView<Card> aiDeckList;
+    @FXML
+    public ProgressBar searchProgressBar;
     
     private DeckWindow deckWindow;
     private FMDB fmdb;
@@ -231,7 +236,15 @@ public class ManaController implements Initializable {
             currentTask = new Task<>() {
                 @Override
                 protected Set<RNG> call() throws Exception {
-                    return playerDeck.findPossibleSeeds(sort, drawnCards);
+                    AtomicLong progress = new AtomicLong();
+                    return new SeedSearch.Builder(playerDeck, drawnCards)
+                        .withSort(sort)
+                        .withCallback(() -> {
+                                long p = progress.incrementAndGet();
+                                updateProgress(p, SeedSearch.DEFAULT_SEARCH_SPACE);
+                        })
+                        .build()
+                        .search();
                 }
             };
             currentTask.setOnSucceeded(event -> {
@@ -239,6 +252,7 @@ public class ManaController implements Initializable {
                 seedList.getItems().addAll(seedSet);
                 resetUiAfterSearch();
             });
+            searchProgressBar.progressProperty().bind(currentTask.progressProperty());
             executor.execute(currentTask);
         }
     }

@@ -23,6 +23,7 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SplitPane?>
@@ -107,6 +108,8 @@
             <Button fx:id="resetDuelButton" mnemonicParsing="false" onAction="#resetDuel" text="Reset Duel" />
             <Separator layoutX="98.0" layoutY="13.0" orientation="VERTICAL" />
             <Button fx:id="searchSeedsButton" mnemonicParsing="false" onAction="#searchSeeds" text="Search Seeds" />
+            <Pane layoutX="681.0" layoutY="13.0" prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
+            <ProgressBar fx:id="searchProgressBar" prefWidth="200.0" progress="0.0" />
         <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
         <Label fx:id="statusLabel" maxWidth="-1.0" text="Ready" HBox.hgrow="NEVER">
                <font>
