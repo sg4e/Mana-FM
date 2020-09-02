@@ -117,6 +117,7 @@ public class ManaController implements Initializable {
         duelistComboBox.getItems().addAll(duelists);
         duelistComboBox.getSelectionModel().select(fmdb.getDuelist(Duelist.Name.HEISHIN_2));
         //initialize decksorts
+        deckSortComboBox.setCellFactory(new GenericCellFactory<>(c -> c.toString().replace("Japanese", "JP")));
         deckSortComboBox.getItems().addAll(Deck.getAllSorts());
         deckSortComboBox.getSelectionModel().select(Deck.CARD_ID_ORDER);
         
