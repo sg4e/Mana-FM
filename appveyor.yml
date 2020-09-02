@@ -1,0 +1,28 @@
+image: Ubuntu2004
+
+environment:
+  global:
+    PROJECT_NAME: Mana
+    JAR_NAME: Mana-FM
+
+stack: jdk 14
+
+build_script:
+  - ./gradlew build jar
+
+artifacts:
+  - path: build/libs/$(JAR_NAME).jar
+    name: Mana
+    type: File
+
+deploy:
+  release: $APPVEYOR_REPO_TAG_NAME
+  description: "This binary requires the latest Java Runtime Environment: Java 14. Java is free software that you can download from a variety of vendors, for example, [java.net](https://jdk.java.net/14/).\n\nThis release works on Windows, Mac, and Linux systems."
+  auth_token:
+    secure: DlM2I0MGgU7nN5IsxRNDlssXf2C1vM7b2dil09+e6dAmrBk3UajqBVahi1TVaZYB
+  provider: GitHub
+  draft: false
+  prerelease: false
+  on:
+    APPVEYOR_REPO_TAG: true
+    branch: master
