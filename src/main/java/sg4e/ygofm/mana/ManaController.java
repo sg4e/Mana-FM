@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
@@ -94,7 +93,8 @@ public class ManaController implements Initializable {
     });
     private Stage parent;
 
-    private Task<Set<RNG>> currentTask;
+    private Task<Void> currentTask;
+    private volatile SeedSearch seedSearch = null;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -220,7 +220,11 @@ public class ManaController implements Initializable {
     public void searchSeeds() {
         if(isSearching) {
             //cancel
-            resetUiAfterSearch();
+            if(seedSearch != null) { // guard against a multi-threaded memory inconsistency
+                searchSeedsButton.setDisable(true);
+                statusLabel.setText("Cancelling...");
+                seedSearch.cancel();
+            }
         }
         else {
             //start searching
@@ -238,17 +242,18 @@ public class ManaController implements Initializable {
             
             currentTask = new Task<>() {
                 @Override
-                protected Set<RNG> call() throws Exception {
+                protected Void call() throws Exception {
                     AtomicLong progress = new AtomicLong();
-                    return new SeedSearch.Builder(playerDeck, drawnCards)
+                    seedSearch = new SeedSearch.Builder(playerDeck, drawnCards)
                         .withSort(sort)
                         .withCallbackAfterEachIteration(() -> {
                                 long p = progress.incrementAndGet();
                                 updateProgress(p, SeedSearch.DEFAULT_SEARCH_SPACE);
                         })
                         .withCallbackAfterEachHit(rng -> Platform.runLater(() -> hitSeeds.add(rng)))
-                        .build()
-                        .search();
+                        .build();
+                    seedSearch.search();
+                    return null;
                 }
             };
             currentTask.setOnSucceeded(event -> {
@@ -262,6 +267,7 @@ public class ManaController implements Initializable {
     private void resetUiAfterSearch() {
         isSearching = false;
         searchSeedsButton.setText("Search Seeds");
+        searchSeedsButton.setDisable(false);
         statusLabel.setText("Ready");
         resetDuelButton.setDisable(false);
     }
