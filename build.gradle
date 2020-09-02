@@ -13,8 +13,16 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 
+configurations.all {
+    if (file(LOCAL_REPO_DIR).exists()) {
+        resolutionStrategy.dependencySubstitution {
+            substitute module(REMOTE_GAMEDATA_REPO) with project(LOCAL_GAMEDATA_REPO)
+        }
+    }
+}
+
 dependencies {
-    implementation 'com.github.sg4e:YGOFM-gamedata:master-SNAPSHOT'
+    implementation REMOTE_GAMEDATA_REPO
     implementation 'org.controlsfx:controlsfx:11.0.1'
     implementation group: 'com.github.afester.javafx', name: 'FranzXaver', version: '0.1'
     

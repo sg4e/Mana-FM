@@ -1,1 +1,3 @@
 rootProject.name = 'Mana-FM'
+include LOCAL_GAMEDATA_REPO
+project(LOCAL_GAMEDATA_REPO).projectDir = file(LOCAL_REPO_DIR)
