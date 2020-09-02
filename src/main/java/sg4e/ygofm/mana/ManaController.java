@@ -120,7 +120,7 @@ public class ManaController implements Initializable {
         deckSortComboBox.getItems().addAll(Deck.getAllSorts());
         deckSortComboBox.getSelectionModel().select(Deck.CARD_ID_ORDER);
         
-        seedList.setCellFactory(new GenericCellFactory<>((rng) -> "0x" + Integer.toHexString(rng.getSeed())));
+        seedList.setCellFactory(new GenericCellFactory<>((rng) -> Integer.toString(rng.getDelta())));
         seedList.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends RNG> ov, RNG oldSelection, RNG newSelection) -> {
             aiDeckList.getItems().clear();
             if(newSelection != null) {
