@@ -28,6 +28,8 @@ import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -227,7 +229,8 @@ public class ManaController implements Initializable {
             statusLabel.setText("Simulating...");
             resetDuelButton.setDisable(true);
             
-            seedList.getItems().clear();
+            ObservableList<RNG> hitSeeds = FXCollections.observableArrayList();
+            seedList.setItems(new SortedList<>(hitSeeds, (r1, r2) -> r1.getDelta() - r2.getDelta()));
             
             Deck playerDeck = new Deck(deckWindow.getController().getCardCollectionController().getDeck());
             Comparator<Card> sort = deckSortComboBox.getSelectionModel().getSelectedItem();
@@ -239,17 +242,16 @@ public class ManaController implements Initializable {
                     AtomicLong progress = new AtomicLong();
                     return new SeedSearch.Builder(playerDeck, drawnCards)
                         .withSort(sort)
-                        .withCallback(() -> {
+                        .withCallbackAfterEachIteration(() -> {
                                 long p = progress.incrementAndGet();
                                 updateProgress(p, SeedSearch.DEFAULT_SEARCH_SPACE);
                         })
+                        .withCallbackAfterEachHit(rng -> Platform.runLater(() -> hitSeeds.add(rng)))
                         .build()
                         .search();
                 }
             };
             currentTask.setOnSucceeded(event -> {
-                Set<RNG> seedSet = currentTask.getValue();
-                seedList.getItems().addAll(seedSet);
                 resetUiAfterSearch();
             });
             searchProgressBar.progressProperty().bind(currentTask.progressProperty());
