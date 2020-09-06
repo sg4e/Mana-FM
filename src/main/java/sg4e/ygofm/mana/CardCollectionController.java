@@ -181,6 +181,12 @@ public class CardCollectionController implements Initializable {
             setDeckErrorMessage("Deck already has 3 copies of " + card.getName());
             return;
         }
+        //disallow multiple copies of Exodia pieces
+        int id = card.getId();
+        if(items.contains(card) && id >= 17 && id <= 21) {
+            setDeckErrorMessage("Deck cannot have duplicates of Exodia pieces");
+            return;
+        }
         deckList.getItems().add(card);
         deckList.scrollTo(items.size() - 1);
         deckCardLabel.setText(CardCell.format(card));
