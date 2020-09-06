@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="5.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sg4e.ygofm.mana.SettingsController">
+   <children>
+      <Label text="Seed search space:">
+         <opaqueInsets>
+            <Insets top="10.0" />
+         </opaqueInsets>
+      </Label>
+      <HBox alignment="CENTER" spacing="15.0">
+         <children>
+            <TextField fx:id="searchStartField" minWidth="150.0" prefWidth="150.0" />
+            <Label text="to" />
+            <TextField fx:id="searchEndField" minWidth="150.0" prefWidth="150.0" />
+         </children>
+      </HBox>
+      <Pane prefHeight="20.0" />
+      <ButtonBar>
+        <buttons>
+            <Button mnemonicParsing="false" onAction="#validateAndClose" text="Ok" />
+          <Button mnemonicParsing="false" onAction="#cancel" text="Cancel" />
+        </buttons>
+      </ButtonBar>
+   </children>
+   <opaqueInsets>
+      <Insets />
+   </opaqueInsets>
+   <padding>
+      <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+   </padding>
+</VBox>

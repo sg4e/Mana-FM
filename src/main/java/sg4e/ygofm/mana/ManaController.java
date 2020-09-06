@@ -15,6 +15,7 @@
  */
 package sg4e.ygofm.mana;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -91,7 +92,11 @@ public class ManaController implements Initializable {
         t.setDaemon(true);
         return t;
     });
+    //this field is initialized much later
     private Stage parent;
+    private VBox settingsVBox;
+    private Stage settingsStage;
+    private SettingsController settingsController;
 
     private Task<Void> currentTask;
     private volatile SeedSearch seedSearch = null;
@@ -142,6 +147,31 @@ public class ManaController implements Initializable {
         });
         
         aiDeckList.setCellFactory((param) -> new CardCell());
+        
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("/settings.fxml"));
+            settingsVBox = loader.<VBox>load();
+            settingsController = loader.getController();
+            settingsStage = new Stage();
+            settingsStage.setTitle("Settings");
+            settingsStage.setScene(new Scene(settingsVBox));
+            settingsController.setWindow(settingsStage);
+            settingsStage.setResizable(false);
+        }
+        catch(IOException ex) {
+            LOG.error("Could not load settings window", ex);
+        }
+    }
+    
+    @FXML
+    public void showSettings() {
+        if(settingsController != null) {
+            settingsController.show();
+        }
+        else {
+            LOG.error("Settings window is null");
+        }
     }
     
     @FXML
@@ -239,16 +269,19 @@ public class ManaController implements Initializable {
             Deck playerDeck = new Deck(deckWindow.getController().getCardCollectionController().getDeck());
             Comparator<Card> sort = deckSortComboBox.getSelectionModel().getSelectedItem();
             List<Card> drawnCards = handCardCollectionController.getDeck();
+            final int start = settingsController.getSearchStart();
+            final int end = settingsController.getSearchEnd();
             
             currentTask = new Task<>() {
                 @Override
                 protected Void call() throws Exception {
                     AtomicLong progress = new AtomicLong();
                     seedSearch = new SeedSearch.Builder(playerDeck, drawnCards)
+                        .withSpace(start, end)
                         .withSort(sort)
                         .withCallbackAfterEachIteration(() -> {
                                 long p = progress.incrementAndGet();
-                                updateProgress(p, SeedSearch.DEFAULT_SEARCH_SPACE);
+                                updateProgress(p, end - start);
                         })
                         .withCallbackAfterEachHit(rng -> Platform.runLater(() -> hitSeeds.add(rng)))
                         .build();
