@@ -8,7 +8,7 @@ environment:
 stack: jdk 14
 
 build_script:
-  - ./gradlew build jar
+  - ./gradlew build jar -x test
 
 artifacts:
   - path: build/libs/$(JAR_NAME).jar
