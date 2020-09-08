@@ -277,7 +277,7 @@ public class ManaController implements Initializable {
             currentTask = new Task<>() {
                 @Override
                 protected Void call() throws Exception {
-                    AtomicLong progress = new AtomicLong();
+                    AtomicLong progress = new AtomicLong(1L);
                     seedSearch = new SeedSearch.Builder(playerDeck, drawnCards)
                         .withSpace(start, end)
                         .withSort(sort)
