@@ -79,7 +79,7 @@ public class ManaController implements Initializable {
     @FXML
     public Label statusLabel;
     @FXML
-    public ListView<Card> aiDeckList;
+    public ListView<CardMetadata> aiDeckList;
     @FXML
     public ProgressBar searchProgressBar;
     
@@ -139,10 +139,12 @@ public class ManaController implements Initializable {
             if(newSelection != null) {
                 RNG copyRNG = new RNG(newSelection);
                 //simulate the whole process
-                new Deck(deckWindow.getController().getCardCollectionController().getDeck()).shuffle(copyRNG);
+                Deck playersDeck = new Deck(deckWindow.getController().getCardCollectionController().getDeck());
+                playersDeck.shuffle(copyRNG, deckSortComboBox.getValue());
+                handCardCollectionController.addSpeculativeCards(playersDeck.toList());
                 Deck aiDeck = Deck.createDuelistDeck(duelistComboBox.getSelectionModel().getSelectedItem(), copyRNG);
                 aiDeck.shuffle(copyRNG);
-                aiDeckList.setItems(FXCollections.observableList(aiDeck.toList()));
+                aiDeckList.setItems(FXCollections.observableList(aiDeck.toList().stream().map(CardMetadata::new).collect(Collectors.toList())));
             }
         });
         

@@ -1,0 +1,10 @@
+.speculative {
+  -fx-background-color: #FFFACD;
+}
+
+.speculative.list-cell:filled:selected {
+  -fx-border-color: -fx-selection-bar;
+  -fx-border-width: 3;
+  -fx-background-insets: 3;
+  -fx-text-fill: black;
+}

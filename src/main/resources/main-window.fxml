@@ -33,7 +33,7 @@
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sg4e.ygofm.mana.ManaController">
+<VBox prefHeight="600.0" prefWidth="900.0" stylesheets="@css/hand.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sg4e.ygofm.mana.ManaController">
   <children>
     <MenuBar VBox.vgrow="NEVER">
       <menus>
@@ -53,7 +53,7 @@
     </MenuBar>
     <SplitPane dividerPositions="0.4, 0.6" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
       <items>
-            <VBox prefHeight="200.0" prefWidth="100.0">
+            <VBox id="deck" prefHeight="200.0" prefWidth="100.0">
                <children>
                   <HBox>
                      <children>

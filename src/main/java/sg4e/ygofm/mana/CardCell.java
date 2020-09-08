@@ -15,6 +15,8 @@
  */
 package sg4e.ygofm.mana;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.scene.control.ListCell;
 import sg4e.ygofm.gamedata.Card;
 
@@ -22,16 +24,39 @@ import sg4e.ygofm.gamedata.Card;
  *
  * @author sg4e
  */
-public class CardCell extends ListCell<Card> {
+public class CardCell extends ListCell<CardMetadata> {
+    public static final String CSS_CLASS_SPECULATIVE = "speculative";
+    
+    private BooleanProperty speculative;
+    private final ChangeListener<Boolean> speculativeListener = (observable, oldValue, newValue) -> {
+        updateCardStyle(newValue);
+    };
+    
     @Override
-    protected void updateItem(Card item, boolean empty) {
+    protected void updateItem(CardMetadata item, boolean empty) {
         super.updateItem(item, empty);
 
         if (empty || item == null) {
+            if(speculative != null)
+                speculative.removeListener(speculativeListener);
+            speculative = null;
             setText(null);
+            getStyleClass().removeAll(CSS_CLASS_SPECULATIVE);
         }
         else {
-            setText(format(item));
+            setText(format(item.getCard()));
+            speculative = item.speculativeProperty();
+            speculative.addListener(speculativeListener);
+            updateCardStyle(speculative.get());
+        }
+    }
+    
+    private void updateCardStyle(boolean speculative) {
+        if(speculative) {
+            getStyleClass().add(CSS_CLASS_SPECULATIVE);
+        }
+        else {
+            getStyleClass().removeAll(CSS_CLASS_SPECULATIVE);
         }
     }
     

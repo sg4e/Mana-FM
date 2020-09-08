@@ -58,7 +58,7 @@ public class CardCollectionController implements Initializable {
     @FXML
     public Label deckCardLabel;
     @FXML
-    public ListView<Card> deckList;
+    public ListView<CardMetadata> deckList;
     @FXML
     public Button addButton;
     
@@ -99,7 +99,7 @@ public class CardCollectionController implements Initializable {
             var duplicateMenuItem = new MenuItem();
             duplicateMenuItem.setText("Duplicate");
             duplicateMenuItem.setGraphic(dupGraphic);
-            duplicateMenuItem.setOnAction(event -> addCardToDeck(cell.getItem()));
+            duplicateMenuItem.setOnAction(event -> addCardToDeck(cell.getItem().getCard()));
             
             var deleteMenuItem = new MenuItem();
             deleteMenuItem.setText("Remove");
@@ -108,6 +108,7 @@ public class CardCollectionController implements Initializable {
                 //need to be careful for the case where multiple copies are in the deck
                 deckList.getItems().remove(cell.getIndex());
                 cardCount--;
+                removeAllSpeculative();
                 alertChangeListeners();
             });
             
@@ -160,8 +161,12 @@ public class CardCollectionController implements Initializable {
     }
     
     public void addCardToDeck(Card card) {
+        addCardToDeck(card, false);
+    }
+    
+    public void addCardToDeck(Card card, boolean speculative) {
         //validation: this is sufficient for private calls but external calls may need additional validation
-        var items = deckList.getItems();
+        List<Card> items = getModelAsCards();
         if(!acceptableCards.contains(card)) {
             setDeckErrorMessage("Card not in deck");
             return;
@@ -173,7 +178,7 @@ public class CardCollectionController implements Initializable {
                 return;
             }
         }
-        if(items.size() >= 40) {
+        if(cardCount >= 40) {
             setDeckErrorMessage("Deck is full");
             return;
         }
@@ -187,13 +192,47 @@ public class CardCollectionController implements Initializable {
             setDeckErrorMessage("Deck cannot have duplicates of Exodia pieces");
             return;
         }
-        deckList.getItems().add(card);
-        deckList.scrollTo(items.size() - 1);
+        CardMetadata cardMeta = new CardMetadata(card);
+        cardMeta.setSpeculative(speculative);
+        if(!speculative) {
+            var firstSpeculative = deckList.getItems().stream().filter(CardMetadata::isSpeculative).findFirst();
+            if(firstSpeculative.isPresent()) {
+                if(card != firstSpeculative.get().getCard()) {
+                    //real draw conflicts with projected draw, so seed does not match. Clear all speculative draws
+                    removeAllSpeculative();
+                }
+            }
+        }
+        if(!speculative && deckList.getItems().size() > cardCount && deckList.getItems().get(cardCount).getCard() == card) {
+            //speculated card has been drawn; update style
+            deckList.getItems().get(cardCount).setSpeculative(false);
+        }
+        else {
+            deckList.getItems().add(cardMeta);
+        }
+        deckList.scrollTo(cardCount);
         deckCardLabel.setText(CardCell.format(card));
         deckCardLabel.setStyle(null);
         deckCardEntry.setText("");
-        cardCount++;
+        if(!speculative) {
+            cardCount++;
+        }
         alertChangeListeners();
+    }
+    
+    public void removeAllSpeculative() {
+        deckList.getItems().removeIf(CardMetadata::isSpeculative);
+        cardCount = (int) deckList.getItems().stream().filter(cm -> !cm.isSpeculative()).count();
+        alertChangeListeners();
+    }
+    
+    public void addSpeculativeCards(List<Card> simulationResults) {
+        removeAllSpeculative();
+        simulationResults.subList(cardCount, simulationResults.size()).forEach(c -> addCardToDeck(c, true));
+    }
+    
+    private List<Card> getModelAsCards() {
+        return deckList.getItems().stream().map(CardMetadata::getCard).collect(Collectors.toList());
     }
     
     private void setDeckErrorMessage(String message) {
@@ -241,11 +280,11 @@ public class CardCollectionController implements Initializable {
     }
     
     public List<Card> getDeck() {
-        return new ArrayList<>(deckList.getItems());
+        return deckList.getItems().stream().filter(cm -> !cm.isSpeculative()).map(CardMetadata::getCard).collect(Collectors.toList());
     }
     
     public Stream<Card> stream() {
-        return deckList.getItems().stream();
+        return deckList.getItems().stream().map(CardMetadata::getCard);
     }
     
 }
