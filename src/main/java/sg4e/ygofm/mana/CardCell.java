@@ -15,9 +15,16 @@
  */
 package sg4e.ygofm.mana;
 
+import afester.javafx.svg.SvgLoader;
+import java.io.ByteArrayInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ChangeListener;
+import javafx.scene.Node;
 import javafx.scene.control.ListCell;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sg4e.ygofm.gamedata.Card;
 
 /**
@@ -31,6 +38,10 @@ public class CardCell extends ListCell<CardMetadata> {
     private final ChangeListener<Boolean> speculativeListener = (observable, oldValue, newValue) -> {
         updateCardStyle(newValue);
     };
+    private static final String SPECULATIVE_GRAPHIC_RESOURCE = "/glyphs/question-circle-regular.svg";
+    private static final SvgLoader SVG_LOADER = new SvgLoader();
+    private static final Logger LOG = LogManager.getLogger();
+    private static byte[] iconBytes;
     
     @Override
     protected void updateItem(CardMetadata item, boolean empty) {
@@ -41,6 +52,7 @@ public class CardCell extends ListCell<CardMetadata> {
                 speculative.removeListener(speculativeListener);
             speculative = null;
             setText(null);
+            setGraphic(null);
             getStyleClass().removeAll(CSS_CLASS_SPECULATIVE);
         }
         else {
@@ -54,9 +66,27 @@ public class CardCell extends ListCell<CardMetadata> {
     private void updateCardStyle(boolean speculative) {
         if(speculative) {
             getStyleClass().add(CSS_CLASS_SPECULATIVE);
+            setGraphic(loadIcon());
         }
         else {
             getStyleClass().removeAll(CSS_CLASS_SPECULATIVE);
+            setGraphic(null);
+        }
+    }
+    
+    private static Node loadIcon() {
+        if(iconBytes == null) {
+            try {
+                iconBytes = Files.readAllBytes(Path.of(CardCell.class.getResource(SPECULATIVE_GRAPHIC_RESOURCE).toURI()));
+            }
+            catch(Exception ex) {
+                LOG.error("Cannot open speculative-icon resource", ex);
+            }
+        }
+        if(iconBytes == null)
+            return null;
+        else {
+            return CardCollectionController.getGraphicFromSvg(SVG_LOADER, new ByteArrayInputStream(iconBytes));
         }
     }
     

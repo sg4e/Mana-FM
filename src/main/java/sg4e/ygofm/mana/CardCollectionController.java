@@ -16,6 +16,7 @@
 package sg4e.ygofm.mana;
 
 import afester.javafx.svg.SvgLoader;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -126,8 +127,12 @@ public class CardCollectionController implements Initializable {
         });
     }
     
-    private static Group getGraphicFromSvg(SvgLoader svgLoad, String glyphResource) {
-        Group dupIcon = svgLoad.loadSvg(CardCollectionController.class.getResourceAsStream(glyphResource));
+    static Group getGraphicFromSvg(SvgLoader svgLoad, String glyphResource) {
+        return getGraphicFromSvg(svgLoad, CardCollectionController.class.getResourceAsStream(glyphResource));
+    }
+    
+    static Group getGraphicFromSvg(SvgLoader svgLoad, InputStream glyphResourceStream) {
+        Group dupIcon = svgLoad.loadSvg(glyphResourceStream);
         dupIcon.setScaleX(0.035);
         dupIcon.setScaleY(0.035);
         //need to encapsulate or sizing doesn't work
