@@ -288,7 +288,7 @@ public class ManaController implements Initializable {
             final int start = settingsController.getSearchStart();
             final int end = settingsController.getSearchEnd();
             
-            currentTask = new Task<>() {
+            currentTask = new NonnegativeProgressTask<>() {
                 @Override
                 protected Void call() throws Exception {
                     AtomicLong progress = new AtomicLong(1L);
@@ -296,7 +296,7 @@ public class ManaController implements Initializable {
                         .withSpace(start, end)
                         .withSort(sort)
                         .withCallbackAfterEachIteration(() -> {
-                                long p = progress.incrementAndGet();
+                                long p = progress.getAndIncrement();
                                 updateProgress(p, end - start);
                         })
                         .withCallbackAfterEachHit(rng -> Platform.runLater(() -> hitSeeds.add(rng)))
