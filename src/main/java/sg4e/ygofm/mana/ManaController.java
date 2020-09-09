@@ -260,6 +260,7 @@ public class ManaController implements Initializable {
         handCardCollectionController.clear();
         resetSeedList();
         aiDeckList.getItems().clear();
+        pruneButton.setDisable(true);
     }
     
     @FXML
