@@ -261,6 +261,8 @@ public class ManaController implements Initializable {
         resetSeedList();
         aiDeckList.getItems().clear();
         pruneButton.setDisable(true);
+        searchProgressBar.progressProperty().unbind();
+        searchProgressBar.setProgress(0d);
     }
     
     @FXML
