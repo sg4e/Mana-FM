@@ -82,6 +82,7 @@
                         </VBox>
                      </content>
                   </ScrollPane>
+                  <Button fx:id="pruneButton" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#pruneSeeds" text="Prune" />
                </children>
             </VBox>
             <VBox>

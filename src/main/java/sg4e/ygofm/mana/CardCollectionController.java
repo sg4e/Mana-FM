@@ -279,6 +279,11 @@ public class CardCollectionController implements Initializable {
         alertChangeListeners();
     }
     
+    /**
+     * Returns all non-speculative cards.
+     * 
+     * @return 
+     */
     public List<Card> getDeck() {
         return deckList.getItems().stream().filter(cm -> !cm.isSpeculative()).map(CardMetadata::getCard).collect(Collectors.toList());
     }

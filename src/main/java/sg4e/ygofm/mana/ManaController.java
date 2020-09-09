@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
@@ -82,6 +83,8 @@ public class ManaController implements Initializable {
     public ListView<CardMetadata> aiDeckList;
     @FXML
     public ProgressBar searchProgressBar;
+    @FXML
+    public Button pruneButton;
     
     private DeckWindow deckWindow;
     private FMDB fmdb;
@@ -99,7 +102,13 @@ public class ManaController implements Initializable {
     private SettingsController settingsController;
 
     private Task<Void> currentTask;
+    private Task<List<RNG>> pruneTask;
+    private volatile boolean cancelPrune = false;
     private volatile SeedSearch seedSearch = null;
+    
+    private static final String READY_STATUS = "Ready";
+    private static final String PRUNE_TEXT = "Prune";
+    private static final String CANCEL_PRUNE_TEXT = "Cancel pruning";
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -139,8 +148,7 @@ public class ManaController implements Initializable {
             if(newSelection != null) {
                 RNG copyRNG = new RNG(newSelection);
                 //simulate the whole process
-                Deck playersDeck = new Deck(deckWindow.getController().getCardCollectionController().getDeck());
-                playersDeck.shuffle(copyRNG, deckSortComboBox.getValue());
+                Deck playersDeck = simulatePlayerDeck(copyRNG);
                 handCardCollectionController.addSpeculativeCards(playersDeck.toList());
                 Deck aiDeck = Deck.createDuelistDeck(duelistComboBox.getSelectionModel().getSelectedItem(), copyRNG);
                 aiDeck.shuffle(copyRNG);
@@ -164,6 +172,12 @@ public class ManaController implements Initializable {
         catch(IOException ex) {
             LOG.error("Could not load settings window", ex);
         }
+        
+        handCardCollectionController.addOnChangeAction((newCount) -> {
+            if(seedList.getItems().size() > 1) {
+                pruneButton.setDisable(false);
+            }
+        });
     }
     
     @FXML
@@ -266,7 +280,7 @@ public class ManaController implements Initializable {
             resetDuelButton.setDisable(true);
             
             ObservableList<RNG> hitSeeds = FXCollections.observableArrayList();
-            seedList.setItems(new SortedList<>(hitSeeds, (r1, r2) -> r1.getDelta() - r2.getDelta()));
+            setSeedList(hitSeeds);
             
             Deck playerDeck = new Deck(deckWindow.getController().getCardCollectionController().getDeck());
             Comparator<Card> sort = deckSortComboBox.getSelectionModel().getSelectedItem();
@@ -303,12 +317,81 @@ public class ManaController implements Initializable {
         isSearching = false;
         searchSeedsButton.setText("Search Seeds");
         searchSeedsButton.setDisable(false);
-        statusLabel.setText("Ready");
+        statusLabel.setText(READY_STATUS);
         resetDuelButton.setDisable(false);
+        pruneButton.setDisable(true);
     }
     
     public void setParent(Stage parent) {
         this.parent = parent;
+    }
+    
+    @FXML
+    public void pruneSeeds() {
+        if(pruneTask == null) {
+            pruneButton.setText(CANCEL_PRUNE_TEXT);
+            statusLabel.setText("Pruning...");
+            List<RNG> seeds = seedList.getItems();
+            //^ I don't want to make a copy because it could be costly with a large seed list
+            //concurrent access without modification should be safe
+            //if any problems arise, we can resort to making a copy for safety
+            int startingSeedCount = seeds.size();
+            Deck doNotUseDeck = getPlayerDeck();
+            List<Card> drawnCards = handCardCollectionController.getDeck();
+            cancelPrune = false;
+            pruneTask = new NonnegativeProgressTask<>() {
+                @Override
+                protected List<RNG> call() throws Exception {
+                    AtomicLong progress = new AtomicLong(1L);
+                    return seeds.parallelStream().filter(mustCopy -> {
+                        if(!cancelPrune) {
+                            RNG copy = new RNG(mustCopy);
+                            Deck tempDeck = new Deck(doNotUseDeck);
+                            tempDeck = simulatePlayerDeck(tempDeck, copy);
+                            updateProgress(progress.getAndIncrement(), startingSeedCount);
+                            return tempDeck.startsWith(drawnCards);
+                        }
+                        else {
+                            return true;
+                        }
+                    }).collect(Collectors.toList());
+                }
+            };
+            pruneTask.setOnSucceeded(eh -> {
+                //#clear() is not supported by (Observable)SortedList
+                setSeedList(FXCollections.observableList(pruneTask.getValue()));
+                statusLabel.setText(READY_STATUS);
+                //if wasn't cancelled, disable button until drawn cards changes
+                if(!cancelPrune) {
+                    pruneButton.setDisable(true);
+                }
+                pruneButton.setText(PRUNE_TEXT);
+                pruneTask = null;
+            });
+            searchProgressBar.progressProperty().bind(pruneTask.progressProperty());
+            executor.execute(pruneTask);
+        }
+        else {
+            //cancel active prune task
+            cancelPrune = true;
+        }
+    }
+    
+    private Deck simulatePlayerDeck(RNG rng) {
+        return simulatePlayerDeck(getPlayerDeck(), rng);
+    }
+    
+    private Deck simulatePlayerDeck(Deck deck, RNG rng) {
+        deck.shuffle(rng, deckSortComboBox.getValue());
+        return deck;
+    }
+    
+    private Deck getPlayerDeck() {
+        return new Deck(deckWindow.getController().getCardCollectionController().getDeck());
+    }
+    
+    private void setSeedList(ObservableList<RNG> hitSeeds) {
+        seedList.setItems(new SortedList<>(hitSeeds, (r1, r2) -> r1.getDelta() - r2.getDelta()));
     }
     
 }
