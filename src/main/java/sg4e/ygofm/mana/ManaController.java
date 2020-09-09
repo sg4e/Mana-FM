@@ -279,6 +279,7 @@ public class ManaController implements Initializable {
             searchSeedsButton.setText("Stop Searching");
             statusLabel.setText("Simulating...");
             resetDuelButton.setDisable(true);
+            handCardCollectionController.setDisable(true);
             
             ObservableList<RNG> hitSeeds = FXCollections.observableArrayList();
             setSeedList(hitSeeds);
@@ -321,6 +322,7 @@ public class ManaController implements Initializable {
         statusLabel.setText(READY_STATUS);
         resetDuelButton.setDisable(false);
         pruneButton.setDisable(true);
+        handCardCollectionController.setDisable(false);
     }
     
     public void setParent(Stage parent) {
