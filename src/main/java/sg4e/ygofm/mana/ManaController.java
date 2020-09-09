@@ -17,11 +17,11 @@ package sg4e.ygofm.mana;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
@@ -258,7 +258,7 @@ public class ManaController implements Initializable {
         
         handCardCollectionController.setCardSuggestionPool(null);
         handCardCollectionController.clear();
-        seedList.getItems().clear();
+        resetSeedList();
         aiDeckList.getItems().clear();
     }
     
@@ -392,6 +392,10 @@ public class ManaController implements Initializable {
     
     private void setSeedList(ObservableList<RNG> hitSeeds) {
         seedList.setItems(new SortedList<>(hitSeeds, (r1, r2) -> r1.getDelta() - r2.getDelta()));
+    }
+    
+    private void resetSeedList() {
+        setSeedList(FXCollections.observableList(new ArrayList<>()));
     }
     
 }
