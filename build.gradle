@@ -48,6 +48,7 @@ application {
 }
 
 jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes 'Main-Class': 'sg4e.ygofm.mana.Launcher',
                    "Multi-Release": true
