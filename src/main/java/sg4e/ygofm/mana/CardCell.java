@@ -18,7 +18,7 @@ package sg4e.ygofm.mana;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.control.ListCell;
-import sg4e.ygofm.gamedata.Card;
+import moe.maika.ygofm.gamedata.Card;
 
 /**
  *

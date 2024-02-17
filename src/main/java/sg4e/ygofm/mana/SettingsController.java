@@ -17,6 +17,7 @@ package sg4e.ygofm.mana;
 
 import java.math.BigInteger;
 import java.util.Locale;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -25,7 +26,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
-import sg4e.ygofm.gamedata.SeedSearch;
+import moe.maika.ygofm.gamedata.SeedSearch;
 
 /**
  *

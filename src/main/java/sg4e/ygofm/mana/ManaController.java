@@ -26,6 +26,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -44,14 +48,12 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import sg4e.ygofm.gamedata.Card;
-import sg4e.ygofm.gamedata.Deck;
-import sg4e.ygofm.gamedata.Duelist;
-import sg4e.ygofm.gamedata.FMDB;
-import sg4e.ygofm.gamedata.RNG;
-import sg4e.ygofm.gamedata.SeedSearch;
+import moe.maika.ygofm.gamedata.Card;
+import moe.maika.ygofm.gamedata.Deck;
+import moe.maika.ygofm.gamedata.Duelist;
+import moe.maika.ygofm.gamedata.FMDB;
+import moe.maika.ygofm.gamedata.RNG;
+import moe.maika.ygofm.gamedata.SeedSearch;
 
 /**
  *
@@ -112,7 +114,7 @@ public class ManaController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        fmdb = new FMDB.Builder().excludeDescrptions().build();
+        fmdb = FMDB.getInstance();
         handCardCollectionController.initFmdb(fmdb);
         handCardCollectionController.addOnChangeAction((value) -> {
             remainingDrawsCount.setText(Integer.toString(NUMBER_CARDS_IN_DECK - value));

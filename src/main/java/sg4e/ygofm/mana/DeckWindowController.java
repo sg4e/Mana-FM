@@ -26,16 +26,18 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import sg4e.ygofm.gamedata.Card;
-import sg4e.ygofm.gamedata.FMDB;
+import moe.maika.ygofm.gamedata.Card;
+import moe.maika.ygofm.gamedata.FMDB;
 
 /**
  *

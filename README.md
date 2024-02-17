@@ -1,4 +1,6 @@
-# Mana
+# Mana-FM
+
+![screenshot of Mana-FM](screenshot.png)
 
 By sg4e.
 

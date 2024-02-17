@@ -3,5 +3,8 @@
 
 # Ignore Gradle build output directory
 build
+nbproject
 Mana-FM.log
 deck.dsv
+.vscode/
+bin/

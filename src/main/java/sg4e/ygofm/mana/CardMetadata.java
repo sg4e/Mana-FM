@@ -19,7 +19,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import sg4e.ygofm.gamedata.Card;
+import moe.maika.ygofm.gamedata.Card;
 
 /**
  *

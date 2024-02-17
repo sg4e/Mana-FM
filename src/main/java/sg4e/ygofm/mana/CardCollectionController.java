@@ -15,7 +15,6 @@
  */
 package sg4e.ygofm.mana;
 
-import afester.javafx.svg.SvgLoader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,6 +29,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.controlsfx.control.textfield.AutoCompletionBinding;
+import org.controlsfx.control.textfield.TextFields;
+
+import afester.javafx.svg.SvgLoader;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -42,10 +46,8 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import org.controlsfx.control.textfield.AutoCompletionBinding;
-import org.controlsfx.control.textfield.TextFields;
-import sg4e.ygofm.gamedata.Card;
-import sg4e.ygofm.gamedata.FMDB;
+import moe.maika.ygofm.gamedata.Card;
+import moe.maika.ygofm.gamedata.FMDB;
 
 /**
  *

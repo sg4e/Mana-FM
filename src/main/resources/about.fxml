@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- ***** BEGIN LICENSE BLOCK *****
-  Copyright (C) 2020 sg4e
+  Copyright (C) 2024 sg4e
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, version 3.
@@ -28,7 +28,7 @@
             <Font name="Purisa" size="43.0" />
          </font>
       </Label>
-      <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="© 2020 sg4e">
+      <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="© 2024 sg4e">
          <padding>
             <Insets bottom="5.0" />
          </padding></Label>
